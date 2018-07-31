@@ -9,21 +9,22 @@ var client = new Twitter(keys.twitter);
 
 var command = process.argv[2];
 
-
-//for do-what-it-says
 if (command === 'do-what-it-says') {
     fs.readFile('random.txt', 'utf8', function(error, data) {
         if (error) {
             console.log(error);
-        }
-        data = data.split(',');
-        command = data[0];
-        if (command === 'spotify-this-song') {
-            searchSpotify(data[1]);
-        } else if (command === 'movie-this') {
-            searchMovie(data[1]);
-        } else if (command === 'my-tweets') {
-            searchTwitter();
+        } else {
+            data = data.split(',');
+            command = data[0];
+            if (command === 'spotify-this-song') {
+                searchSpotify(data[1]);
+            } else if (command === 'movie-this') {
+                searchMovie(data[1]);
+            } else if (command === 'my-tweets') {
+                searchTwitter();
+            } else {
+                console.log('Error: Unrecognized command.');
+            }
         }
     });
 } else if (command === 'my-tweets') {
@@ -32,7 +33,9 @@ if (command === 'do-what-it-says') {
     searchSpotify(process.argv[3])
 } else if (command === 'movie-this') {
    searchMovie(process.argv[3]);
-} 
+} else {
+    console.log('Error: Unrecognized command.')
+}
 
 //functions
 
@@ -53,6 +56,8 @@ function searchSpotify(songName) {
             console.log('Preivew: ' + response.preview_url);
             //album name
             console.log('Album: ' + response.album.name);
+        }).catch(function(error) {
+            console.log(error);
         });
     } else {
         spotify.search({type: 'track', query: songName}).then(function(response) {
@@ -80,7 +85,8 @@ function searchMovie(movie) {
     }
     request('http://www.omdbapi.com/?apikey=e65c2f&t=' + movie, function(error, response) {
         if (!error) {
-            // * Title of the movie.
+            jsonResponse = JSON.parse(response.body);
+           // * Title of the movie.
             console.log('Title: ' + jsonResponse.Title);
             // * Year the movie came out.
             console.log('Year: ' + jsonResponse.Year);
@@ -100,6 +106,7 @@ function searchMovie(movie) {
             console.log(error);
         }
     });
+    
 }
 //function to query twitter api
 function searchTwitter() {
