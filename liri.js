@@ -6,27 +6,11 @@ var keys = require("./keys.js");
 var request = require('request');
 var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
-
+//var inquirer = require('inquirer');
 var command = process.argv[2];
 
 if (command === 'do-what-it-says') {
-    fs.readFile('random.txt', 'utf8', function(error, data) {
-        if (error) {
-            console.log(error);
-        } else {
-            data = data.split(',');
-            command = data[0];
-            if (command === 'spotify-this-song') {
-                searchSpotify(data[1]);
-            } else if (command === 'movie-this') {
-                searchMovie(data[1]);
-            } else if (command === 'my-tweets') {
-                searchTwitter();
-            } else {
-                console.log('Error: Unrecognized command.');
-            }
-        }
-    });
+   runFromFile('random.txt');
 } else if (command === 'my-tweets') {
     searchTwitter();
 } else if (command === 'spotify-this-song') {
@@ -106,7 +90,6 @@ function searchMovie(movie) {
             console.log(error);
         }
     });
-    
 }
 //function to query twitter api
 function searchTwitter() {
@@ -124,6 +107,28 @@ function searchTwitter() {
         } else {
             console.log("There was an error:");
             console.log(error);
+        }
+    });
+}
+//function to execute command from file
+//do-what-it-says
+//accepts a filename string as an argument
+function runFromFile(filename) {
+    fs.readFile(filename, 'utf8', function(error, data) {
+        if (error) {
+            console.log(error);
+        } else {
+            data = data.split(',');
+            command = data[0];
+            if (command === 'spotify-this-song') {
+                searchSpotify(data[1]);
+            } else if (command === 'movie-this') {
+                searchMovie(data[1]);
+            } else if (command === 'my-tweets') {
+                searchTwitter();
+            } else {
+                console.log('Error: Unrecognized command.');
+            }
         }
     });
 }
