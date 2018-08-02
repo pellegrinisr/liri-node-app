@@ -6,20 +6,58 @@ var keys = require("./keys.js");
 var request = require('request');
 var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
+var inquirer = require('inquirer');
 
-var command = process.argv[2];
+//var command = process.argv[2];
 
-if (command === 'do-what-it-says') {
-   runFromFile('random.txt');
-} else if (command === 'my-tweets') {
-    searchTwitter();
-} else if (command === 'spotify-this-song') {
-    searchSpotify(process.argv[3])
-} else if (command === 'movie-this') {
-   searchMovie(process.argv[3]);
-} else {
-    console.log('Error: Unrecognized command.')
+var promptAgain = true;
+
+function anotherCommand() {
+    inquirer.prompt({
+        type: 'confirm', 
+        name:'again',
+        message: 'Do you want to enter another command? '
+    }).then(function(reply) {
+       promptAgain = reply.again;
+       acceptCommand();
+    });
 }
+
+
+
+function acceptCommand() {
+    if (promptAgain) {
+        inquirer.prompt({
+            name: 'command',
+            message: 'Enter your command: '
+        }).then(function(response) {
+            if (response.command === 'do-what-it-says') {
+                runFromFile('random.txt');
+             } else if (response.command === 'my-tweets') {       
+                 searchTwitter();
+             } else if (response.command === 'spotify-this-song') {
+                inquirer.prompt({
+                    name: 'queryTerm',
+                    message: 'Enter your search query: '
+                 }).then(function(reply) {
+                    searchSpotify(reply.queryTerm);
+                 });
+             } else if (response.command === 'movie-this') {
+                inquirer.prompt({
+                    name: 'queryTerm',
+                    message: 'Enter your search query: '
+                 }).then(function(reply) {
+                    searchMovie(reply.queryTerm);
+                 });
+
+             } else {
+                 console.log('Error: Unrecognized command.')
+             }
+        });
+    }
+    
+}
+acceptCommand();
 
 //functions
 
@@ -40,6 +78,7 @@ function searchSpotify(songName) {
             console.log('Preivew: ' + response.preview_url);
             //album name
             console.log('Album: ' + response.album.name);
+            anotherCommand();
         }).catch(function(error) {
             console.log(error);
         });
@@ -48,11 +87,12 @@ function searchSpotify(songName) {
             // * Artist(s)
             console.log('Artist(s): ' + response.tracks.items[0].artists[0].name);
             // * The song's name
-            console.log('Song Name: ' + response.tracks.items[0].name)
+            console.log('Song Name: ' + response.tracks.items[0].name);
             // * A preview link of the song from Spotify
-            console.log('Preview: ' + response.tracks.items[0].external_urls.spotify)
+            console.log('Preview: ' + response.tracks.items[0].external_urls.spotify);
             // * The album that the song is from
-            console.log('Album: ' + response.tracks.items[0].album.name)
+            console.log('Album: ' + response.tracks.items[0].album.name);
+            anotherCommand();
         }).catch(function(error) {
             console.log(error);
         }); 
@@ -86,6 +126,7 @@ function searchMovie(movie) {
             console.log('Plot: ' + jsonResponse.Plot);
             // * Actors in the movie.
             console.log('Actors: ' + jsonResponse.Actors);
+            anotherCommand();
         } else {
             console.log(error);
         }
@@ -104,6 +145,7 @@ function searchTwitter() {
                 console.log();
                 i++;
             }
+            anotherCommand();
         } else {
             console.log("There was an error:");
             console.log(error);
