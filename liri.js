@@ -8,23 +8,26 @@ var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
 var inquirer = require('inquirer');
 
-//var command = process.argv[2];
-
 var promptAgain = true;
 
-function anotherCommand() {
-    inquirer.prompt({
-        type: 'confirm', 
-        name:'again',
-        message: 'Do you want to enter another command? '
-    }).then(function(reply) {
-       promptAgain = reply.again;
-       acceptCommand();
-    });
-}
+//print user documentation
+console.log('\n=================')
+console.log('Welcome to liri');
+console.log('=================\n');
+console.log('Possible Commands:');
+console.log('my-tweets');
+console.log('spotify-this-song');
+console.log('movie-this');
+console.log('do-what-it-says');
+console.log();
 
+acceptCommand();
 
+//functions
 
+//initial function that starts the program
+//will prompt the user for a command
+//calls the appropriate function based on user input
 function acceptCommand() {
     if (promptAgain) {
         inquirer.prompt({
@@ -49,7 +52,6 @@ function acceptCommand() {
                  }).then(function(reply) {
                     searchMovie(reply.queryTerm);
                  });
-
              } else {
                  console.log('Error: Unrecognized command.')
              }
@@ -57,12 +59,21 @@ function acceptCommand() {
     }
     
 }
-acceptCommand();
-
-//functions
-
+//function to prompt the user if they want to enter another command
+//calls the acceptCommand function if user enters yes
+function anotherCommand() {
+    inquirer.prompt({
+        type: 'confirm', 
+        name:'again',
+        message: 'Do you want to enter another command? '
+    }).then(function(reply) {
+       promptAgain = reply.again;
+       acceptCommand();
+    });
+}
 //function to query spotify api
 //takes a song name as a parameter
+//calls anotherCommand function
 function searchSpotify(songName) {
     if (songName === undefined) {
         songName = process.argv[3];
@@ -100,6 +111,7 @@ function searchSpotify(songName) {
 }
 //function to query omdb api
 //takes a movie name as a paramenter
+//calls anotherCommand function
 function searchMovie(movie) {
     if (movie === undefined) {
         movie = process.argv[3];
@@ -133,6 +145,7 @@ function searchMovie(movie) {
     });
 }
 //function to query twitter api
+//calls anotherCommand function
 function searchTwitter() {
     var params = {screen_name: 'spellegrini156'};
     client.get('statuses/user_timeline', params, function(error, tweets) {
